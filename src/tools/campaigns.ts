@@ -129,15 +129,15 @@ export function registerCampaignTools(server: McpServer): void {
   // 9. update_campaign_schedule
   server.tool(
     "update_campaign_schedule",
-    "Update sending schedule for a campaign. Times in HH:MM format (e.g. '08:00'), days as names (e.g. 'Monday').",
+    "Update sending schedule for a campaign. IMPORTANT: Pass times as LOCAL times in the specified timezone - do NOT convert to UTC. The timezone parameter handles conversion. Example: '9 AM to 5 PM Eastern' → from='09:00', to='17:00', timezone='America/New_York'.",
     {
       campaign_id: z.string().describe("Campaign ID"),
-      from: z.string().optional().describe("Send window start time in HH:MM format (e.g. '08:00')"),
-      to: z.string().optional().describe("Send window end time in HH:MM format (e.g. '17:00')"),
+      from: z.string().optional().describe("Send window start time in HH:MM 24h format in the LOCAL timezone (do NOT convert to UTC). E.g. 9 AM = '09:00', 5 PM = '17:00'"),
+      to: z.string().optional().describe("Send window end time in HH:MM 24h format in the LOCAL timezone (do NOT convert to UTC). E.g. 5 PM = '17:00', 9 PM = '21:00'"),
       days: z.array(
         z.enum(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"])
       ).optional().describe("Days of the week to send (e.g. ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'])"),
-      timezone: z.string().optional().describe("IANA timezone (e.g. 'America/New_York')"),
+      timezone: z.string().optional().describe("IANA timezone name (e.g. 'America/New_York', 'America/Los_Angeles', 'Europe/Belgrade'). This is the timezone for the from/to times."),
     },
     async ({ campaign_id, from, to, days, timezone }) => {
       const dayMap: Record<string, number> = {
