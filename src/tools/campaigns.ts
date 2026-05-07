@@ -129,18 +129,33 @@ export function registerCampaignTools(server: McpServer): void {
   // 9. update_campaign_schedule
   server.tool(
     "update_campaign_schedule",
-    "Update sending schedule for a campaign (time window and days)",
+    "Update sending schedule for a campaign. Times in HH:MM format (e.g. '08:00'), days as names (e.g. 'Monday').",
     {
       campaign_id: z.string().describe("Campaign ID"),
-      from: z.string().optional().describe("Send window start time (HH:MM)"),
-      to: z.string().optional().describe("Send window end time (HH:MM)"),
-      days: z.array(z.string()).optional().describe("Days to send (e.g. ['Monday', 'Tuesday'])"),
-      timezone: z.string().optional().describe("Schedule timezone (e.g. America/New_York)"),
+      from: z.string().optional().describe("Send window start time in HH:MM format (e.g. '08:00')"),
+      to: z.string().optional().describe("Send window end time in HH:MM format (e.g. '17:00')"),
+      days: z.array(
+        z.enum(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"])
+      ).optional().describe("Days of the week to send (e.g. ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'])"),
+      timezone: z.string().optional().describe("IANA timezone (e.g. 'America/New_York')"),
     },
     async ({ campaign_id, from, to, days, timezone }) => {
+      const dayMap: Record<string, number> = {
+        Sunday: 0, Monday: 1, Tuesday: 2, Wednesday: 3,
+        Thursday: 4, Friday: 5, Saturday: 6,
+      };
+      const toMinutes = (t: string) => {
+        const [h, m] = t.split(":").map(Number);
+        return h * 60 + (m || 0);
+      };
       const data = await prospiRequest(`/public/campaigns/${campaign_id}/schedule`, {
         method: "PUT",
-        body: { from, to, days, timezone },
+        body: {
+          from: from !== undefined ? toMinutes(from) : undefined,
+          to: to !== undefined ? toMinutes(to) : undefined,
+          days: days !== undefined ? days.map((d) => dayMap[d]) : undefined,
+          timezone,
+        },
       });
       return ok(data);
     }
