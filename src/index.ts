@@ -2,6 +2,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { registerCampaignTools } from "./tools/campaigns.js";
+import { registerLeadTools } from "./tools/leads.js";
 import { registerSequenceTools } from "./tools/sequences.js";
 
 const server = new McpServer({
@@ -10,6 +11,7 @@ const server = new McpServer({
 });
 
 registerCampaignTools(server);
+registerLeadTools(server);
 registerSequenceTools(server);
 
 const transport = new StdioServerTransport();
