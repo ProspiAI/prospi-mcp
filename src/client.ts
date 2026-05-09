@@ -1,4 +1,4 @@
-const BASE_URL = "https://backendapp.prospi.ai/api";
+const BASE_URL = process.env.PROSPI_API_URL || "https://backendapp.prospi.ai/api";
 
 function getApiKey(): string {
   const key = process.env.PROSPI_API_KEY;

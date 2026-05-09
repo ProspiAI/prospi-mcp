@@ -1,6 +1,6 @@
 {
   "name": "prospi-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP server for Prospi AI - manage campaigns, sequences and leads via Claude/Cursor",
   "main": "dist/index.js",
   "bin": {
