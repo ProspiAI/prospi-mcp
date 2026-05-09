@@ -7,7 +7,7 @@
     "prospi-mcp": "dist/index.js"
   },
   "scripts": {
-    "build": "esbuild src/index.ts src/client.ts src/tools/campaigns.ts src/tools/sequences.ts src/tools/leads.ts --bundle=false --platform=node --target=node18 --outdir=dist --format=cjs",
+    "build": "esbuild src/index.ts src/client.ts src/tools/campaigns.ts src/tools/sequences.ts src/tools/leads.ts src/tools/lists.ts src/tools/dnc.ts src/tools/domains.ts --bundle=false --platform=node --target=node18 --outdir=dist --format=cjs",
     "typecheck": "tsc --noEmit",
     "start": "node dist/index.js",
     "prepare": "npm run build"
