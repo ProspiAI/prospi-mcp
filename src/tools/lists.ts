@@ -63,26 +63,38 @@ export function registerListTools(server: McpServer): void {
 
   server.tool(
     "import_leads_to_list",
-    "Import an array of leads (from search results or manual) into a lead list",
+    "Import leads into a lead list using their enrich.so IDs. ALWAYS use search_leads first to find leads, then pass the `id` values from those results here. This fetches full data from enrich.so (industries, keywords, company website, LinkedIn, email, etc.) — identical to saving from the UI. Never pass emails or names directly — always pass the `id` field from search_leads results.",
     {
       lead_list_id: z.string().describe("Lead list ID"),
-      leads: z.array(
-        z.object({
-          email: z.string().describe("Lead email address"),
-          firstName: z.string().optional(),
-          lastName: z.string().optional(),
-          linkedinUrl: z.string().optional(),
-          companyName: z.string().optional(),
-          jobTitle: z.string().optional(),
-          phone: z.string().optional(),
-          customFields: z.record(z.string()).optional().describe("Extra key-value fields"),
-        })
-      ).describe("Array of leads to import"),
+      leads: z.array(z.string()).describe("Array of enrich.so lead IDs — the `id` field from search_leads results"),
     },
     async ({ lead_list_id, leads }) => {
       const data = await prospiRequest(`/public/lists/${lead_list_id}/import`, {
         method: "POST",
         body: { leads },
+      });
+      return ok(data);
+    }
+  );
+
+  server.tool(
+    "enrich_lead_list",
+    "Trigger enrichment for all leads in a lead list. Standard fields: Email, ESP, Title, Company Name, Target Audience, Service Name, Product Name, Sub Industry, Company Type, Company Mission. Optionally add custom AI research fields. Use limit to enrich only the first N leads.",
+    {
+      lead_list_id: z.string().describe("Lead list ID"),
+      enrich: z.array(z.string()).describe("Standard fields to enrich (e.g. ['Email', 'Title', 'Company Name'])"),
+      customFields: z.array(z.object({
+        source: z.string().optional().describe("Data source field (default: company.websiteUrl)"),
+        output: z.string().describe("Variable name for the result (e.g. 'painPoints')"),
+        prompt: z.string().describe("AI prompt to research the field"),
+        save: z.boolean().optional().describe("Save this prompt for reuse"),
+      })).optional().describe("Custom AI research fields"),
+      limit: z.number().optional().describe("Only enrich the first N leads"),
+    },
+    async ({ lead_list_id, enrich, customFields, limit }) => {
+      const data = await prospiRequest(`/public/lists/${lead_list_id}/enrich`, {
+        method: "PUT",
+        body: { enrich, customFields, limit },
       });
       return ok(data);
     }

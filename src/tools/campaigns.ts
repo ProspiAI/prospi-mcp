@@ -110,17 +110,18 @@ export function registerCampaignTools(server: McpServer): void {
   // 8. update_campaign_settings
   server.tool(
     "update_campaign_settings",
-    "Update sending settings for a campaign (daily limit, open/click tracking)",
+    "Update sending settings for a campaign. Use emails to set which mailboxes send for this campaign — pass an array of email addresses (use list_email_accounts with a tag filter to get the right addresses). Also supports dailyLimit, trackOpens, trackClicks.",
     {
       campaign_id: z.string().describe("Campaign ID"),
+      emails: z.array(z.string()).optional().describe("Email addresses of mailboxes to use as senders (replaces current senders). Use list_email_accounts with tag filter to get these."),
       dailyLimit: z.number().optional().describe("Max emails to send per day"),
       trackOpens: z.boolean().optional().describe("Enable open tracking"),
       trackClicks: z.boolean().optional().describe("Enable click tracking"),
     },
-    async ({ campaign_id, dailyLimit, trackOpens, trackClicks }) => {
+    async ({ campaign_id, emails, dailyLimit, trackOpens, trackClicks }) => {
       const data = await prospiRequest(`/public/campaigns/${campaign_id}/settings`, {
         method: "PUT",
-        body: { dailyLimit, trackOpens, trackClicks },
+        body: { emails, dailyLimit, trackOpens, trackClicks },
       });
       return ok(data);
     }
@@ -149,22 +150,15 @@ export function registerCampaignTools(server: McpServer): void {
   // 10. import_leads
   server.tool(
     "import_leads",
-    "Import leads into a campaign",
+    "Import all leads from a lead list into a campaign. Pass the lead list ID (from create_lead_list or list_lead_lists). Only leads that have an email and haven't been imported into this campaign yet will be added.",
     {
       campaign_id: z.string().describe("Campaign ID"),
-      leads: z.array(
-        z.object({
-          email: z.string().describe("Lead email address"),
-          firstName: z.string().optional().describe("First name"),
-          lastName: z.string().optional().describe("Last name"),
-          companyName: z.string().optional().describe("Company name"),
-        })
-      ).describe("Array of leads to import"),
+      lead_list_id: z.string().describe("Lead list ID to import leads from"),
     },
-    async ({ campaign_id, leads }) => {
+    async ({ campaign_id, lead_list_id }) => {
       const data = await prospiRequest(`/public/campaigns/${campaign_id}/leads/import`, {
         method: "POST",
-        body: { leads },
+        body: { leadListId: lead_list_id },
       });
       return ok(data);
     }
@@ -197,7 +191,18 @@ export function registerCampaignTools(server: McpServer): void {
     }
   );
 
-  // 13. get_statistics_by_day
+  // 13. get_campaign_statistics
+  server.tool(
+    "get_campaign_statistics",
+    "Get statistics for a specific campaign (leads, emails sent, replies, bounce rate, progress)",
+    { campaign_id: z.string().describe("Campaign ID") },
+    async ({ campaign_id }) => {
+      const data = await prospiRequest(`/public/campaigns/${campaign_id}/statistics`);
+      return ok(data);
+    }
+  );
+
+  // 14. get_statistics_by_day
   server.tool(
     "get_statistics_by_day",
     "Get campaign statistics broken down by day for a date range",

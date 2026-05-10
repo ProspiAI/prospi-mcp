@@ -15,7 +15,7 @@ export function registerLeadTools(server: McpServer): void {
       jobTitle: z.array(z.string()).optional().describe("Job titles (e.g. ['CEO', 'Founder'])"),
       countryName: z.array(z.string()).optional().describe("Countries (e.g. ['United States', 'Germany'])"),
       companyName: z.array(z.string()).optional().describe("Company names"),
-      industryNaicsDescription: z.array(z.string()).optional().describe("Industries (e.g. ['Software'])"),
+      linkedinIndustry: z.array(z.string()).optional().describe("LinkedIn industries (e.g. ['Computer Software', 'Information Technology and Services', 'Financial Services'])"),
       jobLevel: z.array(z.string()).optional().describe("Seniority levels (e.g. ['C-Team', 'Director'])"),
       jobFunction: z.array(z.string()).optional().describe("Job functions (e.g. ['Engineering', 'Sales'])"),
       employeeCountMin: z.number().optional().describe("Minimum company employee count"),
