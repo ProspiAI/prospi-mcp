@@ -1,13 +1,14 @@
 {
   "name": "prospi-mcp",
-  "version": "0.2.0",
+  "version": "0.2.6",
   "description": "MCP server for Prospi AI - manage campaigns, sequences and leads via Claude/Cursor",
   "main": "dist/index.js",
   "bin": {
-    "prospi-mcp": "dist/index.js"
+    "prospi-mcp": "dist/index.js",
+    "prospi-mcp-setup": "dist/setup.js"
   },
   "scripts": {
-    "build": "esbuild src/index.ts src/client.ts src/tools/campaigns.ts src/tools/sequences.ts src/tools/leads.ts src/tools/lists.ts src/tools/dnc.ts src/tools/domains.ts --bundle=false --platform=node --target=node18 --outdir=dist --format=cjs",
+    "build": "esbuild src/index.ts src/setup.ts src/client.ts src/tools/campaigns.ts src/tools/sequences.ts src/tools/leads.ts src/tools/lists.ts src/tools/dnc.ts src/tools/domains.ts src/tools/email-accounts.ts --bundle=false --platform=node --target=node18 --outdir=dist --format=cjs",
     "typecheck": "tsc --noEmit",
     "start": "node dist/index.js",
     "prepare": "npm run build"
